@@ -41,27 +41,33 @@ class _MyHomePageState extends State<MyHomePage> {
               children: <Widget>[
                 Expanded(
                     child: new TextField(
-                      autofocus: true,
-                      decoration: new InputDecoration(
-                          labelText: 'Title', hintText: 'タイトルを入力'),
-                      onChanged: (value) {
-                        title = value;
-                      },
-                    )),
+                  autofocus: true,
+                  decoration: new InputDecoration(
+                      labelText: 'ルーム名', hintText: 'タイトルを入力'),
+                  onChanged: (value) {
+                    title = value;
+                  },
+                )),
                 Expanded(
                     child: new TextField(
-                      autofocus: true,
-                      decoration: new InputDecoration(
-                          labelText: 'Description', hintText: '説明を入力'),
-                      onChanged: (value) {
-                        description = value;
-                      },
-                    )),
+                  autofocus: true,
+                  decoration:
+                      new InputDecoration(labelText: '説明', hintText: '説明を入力'),
+                  onChanged: (value) {
+                    description = value;
+                  },
+                )),
               ],
             ),
             actions: <Widget>[
               FlatButton(
-                child: Text('Ok'),
+                child: Text('キャンセル'),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+              FlatButton(
+                child: Text('OK'),
                 onPressed: () {
                   if (title.isNotEmpty) {
                     Firestore.instance
@@ -96,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
 class TestList extends StatelessWidget {
   final String userId;
 
-  TestList({Key key, @required this.userId}) :super(key: key);
+  TestList({Key key, @required this.userId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -111,16 +117,20 @@ class TestList extends StatelessWidget {
             {
               return ListView(
                 children:
-                snapshot.data.documents.map((DocumentSnapshot document) {
+                    snapshot.data.documents.map((DocumentSnapshot document) {
                   return new ListTile(
                     title: new Text(document['title']),
                     subtitle: new Text(document['content']),
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute<Null>(
-                          settings: const RouteSettings(name: "/chatRoom"),
-                          builder: (BuildContext context) =>
-                              Chat(roomId: document.documentID, userId:"thisisuserid",)
-                      ));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute<Null>(
+                              settings: const RouteSettings(name: "/chatRoom"),
+                              builder: (BuildContext context) => Chat(
+                                    roomId: document.documentID,
+                                    userId: "this",
+                                    roomName: document["title"],
+                                  )));
                     },
                   );
                 }).toList(),

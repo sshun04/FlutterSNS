@@ -5,22 +5,26 @@ import 'package:flutter/material.dart';
 class Chat extends StatelessWidget {
   final String roomId;
   final String userId;
+  final String roomName;
 
-  Chat({Key key, @required this.roomId, @required this.userId})
+  Chat(
+      {Key key,
+      @required this.roomId,
+      @required this.userId,
+      @required this.roomName})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0xFFFFFFFF),
-        title: Text(
-          'CHAT',
-          style: TextStyle(color: Colors.black87),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          title: Text(
+            roomName,
+            style: TextStyle(color: Colors.blue),
+          ),
         ),
-      ),
-      body: ChatScreen(roomId: roomId, userId: userId),
-    );
+        body: ChatScreen(roomId: roomId, userId: userId));
   }
 }
 
@@ -58,6 +62,32 @@ class ChatScreenState extends State<ChatScreen> {
       return Row(
         children: <Widget>[
           Container(
+            child: Column(
+              children: <Widget>[
+                Container(
+                  child: Text(
+                    document['message'],
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
+                  width: 200.0,
+                  decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(8.0)),
+                  margin: EdgeInsets.only(
+                      bottom: isLastMessageRight(index) ? 20.0 : 5.0,
+                      right: 10.0),
+                )
+              ],
+            ),
+          )
+        ],
+        mainAxisAlignment: MainAxisAlignment.end,
+      );
+    } else {
+      // Left peers message
+      return Row(children: <Widget>[
+        Container(
             child: Text(
               document['message'],
               style: TextStyle(color: Colors.black87),
@@ -65,42 +95,36 @@ class ChatScreenState extends State<ChatScreen> {
             padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
             width: 200.0,
             decoration: BoxDecoration(
-                color: Colors.white, borderRadius: BorderRadius.circular(8.0)),
+                color: Color.fromARGB(100, 238, 238, 238),
+                borderRadius: BorderRadius.circular(8.0)),
             margin: EdgeInsets.only(
-                bottom: isLastMessageRight(index) ? 20.0 : 10.0, right: 10.0),
-          )
-        ],
-      );
-    } else {
-      // Left peers message
-      return Container(
-        child: Column(
-          children: <Widget>[
-            Container(
-              child: Text(
-                document['message'],
-                style: TextStyle(color: Colors.white),
-              ),
-              padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
-              width: 200.0,
-              decoration: BoxDecoration(
-                  color: Colors.orange,
-                  borderRadius: BorderRadius.circular(8.0)),
-              margin: EdgeInsets.only(left: 10.0),
-            )
-          ],
-        ),
-      );
+                bottom: isLastMessageLeft(index) ? 20.0 : 5.0, left: 10.0))
+      ], crossAxisAlignment: CrossAxisAlignment.start);
     }
   }
 
-  bool isLastMessageRight(int index) {
-    if ((index > 0 && listMessages != null && listMessages[index - 1]['userId'] != userId) || index == 0) {
+  bool isLastMessageLeft(int index) {
+    if ((index > 0 &&
+            listMessages != null &&
+            listMessages[index - 1]['userId'] == userId) ||
+        index == 0) {
       return true;
     } else {
       return false;
     }
   }
+
+  bool isLastMessageRight(int index) {
+    if ((index > 0 &&
+            listMessages != null &&
+            listMessages[index - 1]['userId'] != userId) ||
+        index == 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   Future<bool> onBackPress() {
     var userRef = Firestore.instance
         .collection('test')
@@ -151,7 +175,7 @@ class ChatScreenState extends State<ChatScreen> {
               child: new IconButton(
                 icon: new Icon(Icons.send),
                 onPressed: () => onSendMessage(textEditingController.text),
-                color: Colors.orange,
+                color: Colors.blue,
               ),
             ),
             color: Colors.white,
@@ -174,6 +198,7 @@ class ChatScreenState extends State<ChatScreen> {
           .collection("test")
           .document(roomId)
           .collection("messages")
+          .orderBy('timeStamp', descending: true)
           .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasData) {
@@ -188,7 +213,7 @@ class ChatScreenState extends State<ChatScreen> {
         } else {
           return Center(
               child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.orange)));
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue)));
         }
       },
     ));
@@ -210,7 +235,7 @@ class ChatScreenState extends State<ChatScreen> {
           {
             'userId': userId,
             'message': text,
-            'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
+            'timeStamp': DateTime.now().millisecondsSinceEpoch.toString(),
           },
         );
       });
