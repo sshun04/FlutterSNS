@@ -70,10 +70,21 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Text('OK'),
                 onPressed: () {
                   if (title.isNotEmpty) {
-                    Firestore.instance
+                    var createRoom = Firestore.instance
                         .collection("test")
                         .add({"title": title, "content": description});
-                    Navigator.pop(context);
+                    createRoom.then((DocumentReference docRef) {
+                      Navigator.pop(context);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute<Null>(
+                              settings: const RouteSettings(name: "/chatRoom"),
+                              builder: (BuildContext context) => Chat(
+                                    roomId: docRef.documentID,
+                                    userId: "this",
+                                    roomName: title,
+                                  )));
+                    });
                   } else {
                     // TODO 注意メッセージ出す
                   }

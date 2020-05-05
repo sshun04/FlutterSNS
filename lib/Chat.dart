@@ -18,6 +18,8 @@ class Chat extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          actionsIconTheme: IconThemeData(color: Colors.blue,opacity: 1.0),
+          iconTheme: IconThemeData(color: Colors.blue,opacity: 1.0),
           backgroundColor: Colors.white,
           title: Text(
             roomName,
