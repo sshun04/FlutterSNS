@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttersns/Chat.dart';
 
 void main() => runApp(MyApp());
 
@@ -27,7 +28,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   void showPostDialog() {
     showDialog(
         context: context,
@@ -41,32 +41,36 @@ class _MyHomePageState extends State<MyHomePage> {
               children: <Widget>[
                 Expanded(
                     child: new TextField(
-                  autofocus: true,
-                  decoration: new InputDecoration(
-                      labelText: 'Title', hintText: 'タイトルを入力'),
-                  onChanged: (value) {
-                    title = value;
-                  },
-                )),
+                      autofocus: true,
+                      decoration: new InputDecoration(
+                          labelText: 'Title', hintText: 'タイトルを入力'),
+                      onChanged: (value) {
+                        title = value;
+                      },
+                    )),
                 Expanded(
                     child: new TextField(
-                  autofocus: true,
-                  decoration: new InputDecoration(
-                      labelText: 'Description', hintText: '説明を入力'),
-                  onChanged: (value) {
-                    description = value;
-                  },
-                )),
+                      autofocus: true,
+                      decoration: new InputDecoration(
+                          labelText: 'Description', hintText: '説明を入力'),
+                      onChanged: (value) {
+                        description = value;
+                      },
+                    )),
               ],
             ),
             actions: <Widget>[
               FlatButton(
                 child: Text('Ok'),
                 onPressed: () {
-                  Firestore.instance
-                      .collection("test")
-                      .add({"title": title, "content": description});
-                  Navigator.pop(context);
+                  if (title.isNotEmpty) {
+                    Firestore.instance
+                        .collection("test")
+                        .add({"title": title, "content": description});
+                    Navigator.pop(context);
+                  } else {
+                    // TODO 注意メッセージ出す
+                  }
                 },
               ),
             ],
@@ -78,7 +82,6 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-
         title: Text(widget.title),
       ),
       body: TestList(),
@@ -91,6 +94,10 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class TestList extends StatelessWidget {
+  final String userId;
+
+  TestList({Key key, @required this.userId}) :super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -104,11 +111,17 @@ class TestList extends StatelessWidget {
             {
               return ListView(
                 children:
-                    snapshot.data.documents.map((DocumentSnapshot document) {
+                snapshot.data.documents.map((DocumentSnapshot document) {
                   return new ListTile(
                     title: new Text(document['title']),
                     subtitle: new Text(document['content']),
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute<Null>(
+                          settings: const RouteSettings(name: "/chatRoom"),
+                          builder: (BuildContext context) =>
+                              Chat(roomId: document.documentID, userId:"thisisuserid",)
+                      ));
+                    },
                   );
                 }).toList(),
               );
