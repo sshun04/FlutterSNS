@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'FlutterSNS'),
     );
   }
 }
@@ -139,7 +139,7 @@ class TestList extends StatelessWidget {
                               settings: const RouteSettings(name: "/chatRoom"),
                               builder: (BuildContext context) => Chat(
                                     roomId: document.documentID,
-                                    userId: "this",
+                                    userId: "thisisuserid",
                                     roomName: document["title"],
                                   )));
                     },
